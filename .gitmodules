@@ -1,0 +1,3 @@
+[submodule "external/x_list"]
+	path = external/x_list
+	url = git@github.com:Neburalis/x_list.git
