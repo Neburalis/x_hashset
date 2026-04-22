@@ -1,6 +1,0 @@
-[submodule "external/x_list"]
-	path = external/x_list
-	url = git@github.com:Neburalis/x_list.git
-[submodule "external/string_and_thong"]
-	path = external/string_and_thong
-	url = git@github.com:Neburalis/string_and_thong.git
