@@ -249,6 +249,54 @@ size_t slow::search(list_t *list, list_containing_t value) {
 //
 // }
 
+LIST_ERRNO slow::resize(list_t *list, size_t new_capacity) {
+    if (!list || !list->elements) return LIST_NULL_POINTER;
+    if (list->errno != LIST_NO_PROBLEM && list->errno != LIST_OVERFLOW)
+        return list->errno;
+
+    ++new_capacity; // same +1 convention as constructor (sentinel + overflow guard)
+
+    size_t actual_size = list->size - 1; // elements excluding sentinel
+    if (new_capacity <= actual_size + 1)
+        return LIST_OVERFLOW;
+
+    list_element_t *old_el = list->elements;
+    list_element_t *new_el = (list_element_t *) calloc(new_capacity, sizeof(list_element_t));
+    if (!new_el) return LIST_CANNOT_REALLOC_MEMORY;
+
+    // Sentinel slot 0
+    new_el[0].data = POISON;
+
+    // Walk old active chain directly (bypass verifier; errno may be LIST_OVERFLOW)
+    size_t new_idx = 1;
+    size_t old_curr = old_el[0].next;
+    while (old_curr != 0 && old_curr < list->capacity) {
+        new_el[new_idx].data = old_el[old_curr].data;
+        new_el[new_idx].prev = new_idx - 1;
+        size_t old_next      = old_el[old_curr].next;
+        new_el[new_idx].next = (old_next != 0) ? new_idx + 1 : 0;
+        old_curr = old_next;
+        new_idx++;
+    }
+    new_el[0].next = (actual_size > 0) ? 1        : 0;
+    new_el[0].prev = (actual_size > 0) ? new_idx - 1 : 0;
+
+    // Free list: slots new_idx .. new_capacity-1
+    list->free_idx = new_idx;
+    for (size_t i = new_idx; i < new_capacity - 1; i++) {
+        new_el[i].prev = SIZE_MAX;
+        new_el[i].next = i + 1;
+    }
+    new_el[new_capacity - 1].prev = SIZE_MAX;
+    new_el[new_capacity - 1].next = 0;
+
+    free(old_el);
+    list->elements = new_el;
+    list->capacity = new_capacity;
+    list->errno    = LIST_NO_PROBLEM;
+    return LIST_NO_PROBLEM;
+}
+
 // Вернет индекс новой ячейки (список свободных будет валидным после вызова)
 function size_t alloc_new_list_element(list_t *list) {
     verifier(list) verified(return 0;);

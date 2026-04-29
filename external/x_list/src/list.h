@@ -69,11 +69,11 @@ char *_dump_to_str(list_t *list,
     int line, const char *func, const char *file,
     const char *fmt, ...) __attribute__ ((format (printf, 5, 6)));
 
-// dump list to log — supports printf-like format and optional args
-#define dump(list, logfile, log_dirname, fmt, ...) \
+// dump list to log - supports printf-like format and optional args
+#define x_list__dump(list, logfile, log_dirname, fmt, ...) \
     _dump_impl((list), (logfile), (log_dirname), __LINE__, __PRETTY_FUNCTION__, __FILE__, (fmt), ##__VA_ARGS__)
 
-#define dump_to_str(list, fmt, ...) \
+#define x_list__dump_to_str(list, fmt, ...) \
     _dump_to_str((list), __LINE__, __PRETTY_FUNCTION__, __FILE__, (fmt), ##__VA_ARGS__)
 
 // ----- capacity ----
@@ -104,6 +104,10 @@ namespace slow {
 
     // search index of the first occurrence of a value (0 if not found)
     size_t search(list_t *list, list_containing_t value);
+
+    // Resize list to new_capacity (user-visible slots, same convention as constructor).
+    // Works even when errno == LIST_OVERFLOW; leaves errno = LIST_NO_PROBLEM on success.
+    LIST_ERRNO resize(list_t *list, size_t new_capacity);
 }
 
 // ----- modifiers -----

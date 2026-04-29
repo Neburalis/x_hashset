@@ -7,21 +7,22 @@ namespace x_str {
 
 static size_t actual_len(const x_str_t *s) { return s && s->str ? (s->len ? s->len : strlen(s->str)) : 0; }
 
-static unsigned long compute_hash(const x_str_t *s) {
-    return s->hash_fn ? s->hash_fn(s) : djb2_impl(s->str);
-}
-
 static unsigned long djb2_impl(const char *s) {
     unsigned long h = 5381;
     if (!s) return 0;
     for (unsigned char c; (c = (unsigned char)(*s++));) h = ((h << 5) + h) + c;
     return h ? h : 1;
 }
+
 static unsigned long hash_sdbm_impl(const char *s) {
     unsigned long h = 0;
     if (!s) return 1;
     for (unsigned char c; (c = (unsigned char)(*s++));) h = c + (h << 6) + (h << 16) - h;
     return h ? h : 1;
+}
+
+static unsigned long compute_hash(const x_str_t *s) {
+    return s->hash_fn ? s->hash_fn(s) : djb2_impl(s->str);
 }
 
 x_str_t construct(char *str) {

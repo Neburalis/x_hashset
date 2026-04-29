@@ -2,8 +2,8 @@
 #define HASHSET_H
 
 #include <stddef.h>
-#include "external/x_list/src/list.h"
-#include "external/string_and_thong/stringNthong.h"
+#include "list.h"
+#include "stringNthong.h"
 
 namespace x_hashset {
 
@@ -14,17 +14,20 @@ typedef struct {
 
 } hashset_t;
 
-hashset_t x_hashset::construct(x_str::hash_fp hash_fn, size_t size);
+hashset_t construct(x_str::hash_fp hash_fn, size_t size);
 
-void x_hashset::destruct(hashset_t *hashset);
+void destruct(hashset_t *hashset);
 
-bool x_hashset::verifier(hashset_t *hashset);
+bool verifier(hashset_t hashset);
 
-void x_hashset::dump(hashset_t hashset);
+void dump(hashset_t hashset, FILE *fp);
 
-bool x_hashset::add(hashset_t hashset, x_str::x_str_t str);
+// Write per-bucket element counts to <csv_path> (columns: bucket,count).
+void dump_hist(hashset_t hashset, const char *csv_path);
 
-bool x_hashset::contains(hashset_t hashset, x_str::x_str_t str);
+bool add(hashset_t hashset, x_str::x_str_t str);
+
+bool contains(hashset_t hashset, x_str::x_str_t str);
 
 }
 

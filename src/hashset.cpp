@@ -1,8 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hashset.h"
 
-using namespace x_hashset;
+namespace x_hashset {
 
 hashset_t construct(x_str::hash_fp hash_fn, size_t size) {
     hashset_t res = {
@@ -45,35 +47,53 @@ bool verifier(hashset_t hashset) {
 
 void dump(hashset_t hashset, FILE *fp) {
     for (size_t i = 0; i < hashset.size; ++i) {
-        char *str = dump_to_str(hashset.lists[i], 0);
+        char *str = x_list__dump_to_str(hashset.lists[i], 0);
+#pragma diagnostic push -Wformat-security
         fprintf(fp, str);
+#pragma diagnostic pop -Wformat-security
         free(str);
     }
 }
 
 bool add(hashset_t hashset, x_str::x_str_t str) {
-    unsigned long hash = str.hash ?
-        str.hash :
-        (str.hash_fn == hashset.hash_fn ?
-            str.hash = str.hash_fn(&str), str.hash :
-            str.hash_fn = hashset.hash_fn, str.hash = str.hash_fn(&str), str.hash
-        );
-    if (hash == 0) return false;
-    hash = (hash - 1) % hashset.size;
+    unsigned long h = (str.hash_fn == hashset.hash_fn)
+                      ? str.hash
+                      : (str.hash_fn = hashset.hash_fn, hashset.hash_fn(&str));
+    unsigned long bucket = h % hashset.size;
 
-    size_t var = x_list::slow::search(hashset.lists[hash], str);
-    return var ? var : x_list::push_front(hashset.lists[hash], str);
+    size_t found = x_list::slow::search(hashset.lists[bucket], str);
+    if (found) return true;
+
+    size_t idx = x_list::push_front(hashset.lists[bucket], str);
+    if (!idx && hashset.lists[bucket]->errno == x_list::LIST_OVERFLOW) {
+        x_list::slow::resize(hashset.lists[bucket],
+                             hashset.lists[bucket]->capacity * 2);
+        found = x_list::slow::search(hashset.lists[bucket], str);
+        if (!found) idx = x_list::push_front(hashset.lists[bucket], str);
+    }
+    return idx != 0 || found != 0;
 }
 
 bool contains(hashset_t hashset, x_str::x_str_t str) {
-    unsigned long hash = str.hash ?
-        str.hash :
-        (str.hash_fn == hashset.hash_fn ?
-            str.hash = str.hash_fn(&str), str.hash :
-            str.hash_fn = hashset.hash_fn, str.hash = str.hash_fn(&str), str.hash
-        );
-    if (hash == 0) return false;
-    hash = (hash - 1) % hashset.size;
+    unsigned long h = (str.hash_fn == hashset.hash_fn)
+                      ? str.hash
+                      : hashset.hash_fn(&str);
 
-    return x_list::slow::search(hashset.lists[hash], str);
+    return x_list::slow::search(hashset.lists[h % hashset.size], str);
 }
+
+void dump_hist(hashset_t hashset, const char *csv_path) {
+    FILE *fp = fopen(csv_path, "w");
+    if (!fp) {
+        fprintf(stderr, "dump_hist: cannot open %s\n", csv_path);
+        return;
+    }
+
+    fprintf(fp, "bucket,count\n");
+    for (size_t i = 0; i < hashset.size; ++i)
+        fprintf(fp, "%zu,%zu\n", i, x_list::size(hashset.lists[i]));
+
+    fclose(fp);
+}
+
+} // namespace x_hashset
