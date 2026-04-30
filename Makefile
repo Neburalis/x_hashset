@@ -25,7 +25,7 @@ PERF_SRCS := perf_main.cpp \
              external/x_list/src/list_verifier.cpp
 
 PERF_TARGET  := hashset_perf.out
-PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY
+PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
 
 PERF_SOA_SRCS   := perf_main_soa.cpp \
                    src/hashset_soa.cpp \
@@ -70,4 +70,4 @@ perf_soa_build: | data assets
 
 perf_soa: perf_soa_build
 	perf record -g -F 999 -o /tmp/perf_soa.data ./$(PERF_SOA_TARGET)
-	perf report --stdio -i /tmp/perf_soa.data | head -80
+	perf report -i /tmp/perf_soa.data
