@@ -17,18 +17,18 @@ const char * remove_last_terminal_str = "\r\033[2K";
 
 #define HASH_ENTRY(f, sz) {hash::f, #f, (sz)}
 static hash_func_entry all_funcs[] = {
-    HASH_ENTRY(why_not,     997),
+    // HASH_ENTRY(why_not,     501),
     HASH_ENTRY(first_char,  197),
-    HASH_ENTRY(first_char,  997),
+    HASH_ENTRY(first_char,  501),
     HASH_ENTRY(len,         97),
-    HASH_ENTRY(len,         997),
-    HASH_ENTRY(sum,         997),
+    HASH_ENTRY(len,         501),
+    HASH_ENTRY(sum,         501),
     HASH_ENTRY(sum,         5003),
-    HASH_ENTRY(rol,         997),
-    HASH_ENTRY(ror,         997),
-    HASH_ENTRY(crc32,       997),
+    HASH_ENTRY(rol,         501),
+    HASH_ENTRY(ror,         501),
+    HASH_ENTRY(crc32,       501),
     HASH_ENTRY(crc32,       5003),
-    HASH_ENTRY(crc32_hw,    997),
+    HASH_ENTRY(crc32_hw,    501),
     HASH_ENTRY(crc32_hw,    5003),
 };
 #undef HASH_ENTRY

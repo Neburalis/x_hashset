@@ -25,7 +25,7 @@ PERF_SRCS := perf_main.cpp \
              external/x_list/src/list_verifier.cpp
 
 PERF_TARGET  := hashset_perf.out
-PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY
+PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
 
 .PHONY: all clean run analyze perf perf_build
 
@@ -54,4 +54,4 @@ perf_build: | data assets
 
 perf: perf_build
 	perf record -g -F 999 ./$(PERF_TARGET)
-	perf report --stdio | head -60
+	perf report
