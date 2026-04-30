@@ -10,11 +10,18 @@ static const int    REPS     = 100;
 
 static size_t load_words(const char *path, x_str::x_str_t **out) {
     FILE *f = fopen(path, "r");
-    if (!f) { perror(path); *out = nullptr; return 0; }
+    if (!f) {
+        perror(path);
+        *out = nullptr;
+        return 0;
+    }
 
     size_t cap = 4096, n = 0;
     *out = (x_str::x_str_t *) calloc(cap, sizeof(x_str::x_str_t));
-    if (!*out) { fclose(f); return 0; }
+    if (!*out) {
+        fclose(f);
+        return 0;
+    }
 
     char buf[512];
     while (fgets(buf, sizeof(buf), f)) {
@@ -55,9 +62,11 @@ int main() {
     (void)sink;
     x_hashset::destruct(&hs);
 
-    for (size_t i = 0; i < n_train; i++) free(train[i].str);
+    for (size_t i = 0; i < n_train; i++)
+        free(train[i].str);
     free(train);
-    for (size_t i = 0; i < n_test; i++) free(test[i].str);
+    for (size_t i = 0; i < n_test; i++)
+        free(test[i].str);
     free(test);
     return 0;
 }
