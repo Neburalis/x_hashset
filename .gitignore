@@ -6,3 +6,4 @@
 .g+++_config
 *.bin
 logs/
+data/timing.csv
