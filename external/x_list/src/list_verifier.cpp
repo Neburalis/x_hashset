@@ -3,6 +3,8 @@
 #include "list.h"
 #include "base.h"
 
+#ifndef X_LIST_NO_VERIFY
+
 namespace x_list {
 
 bool verifier(list_t *list) {
@@ -116,4 +118,6 @@ bool verifier(list_t *list) {
     return true;
 }
 
-}
+} // namespace x_list
+
+#endif // X_LIST_NO_VERIFY

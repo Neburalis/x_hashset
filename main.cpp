@@ -26,6 +26,8 @@ static hash_func_entry all_funcs[] = {
     HASH_ENTRY(ror,         997),
     HASH_ENTRY(crc32,       997),
     HASH_ENTRY(crc32,       5003),
+    HASH_ENTRY(crc32_hw,    997),
+    HASH_ENTRY(crc32_hw,    5003),
 };
 #undef HASH_ENTRY
 

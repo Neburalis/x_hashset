@@ -12,6 +12,7 @@ unsigned long sum(const x_str::x_str_t *str);
 unsigned long rol(const x_str::x_str_t *str);
 unsigned long ror(const x_str::x_str_t *str);
 unsigned long crc32(const x_str::x_str_t *str);
+unsigned long crc32_hw(const x_str::x_str_t *str);  // hardware CRC32 (SSE4.2)
 
 }
 

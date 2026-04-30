@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <string.h>
+#include <nmmintrin.h>  // SSE4.2: _mm_crc32_u8, _mm_crc32_u32
 
 #include "hashfuncs.h"
 #include "stringNthong.h"
@@ -70,6 +72,27 @@ unsigned long crc32(const x_str_t *s) {
                 crc >>= 1;
             }
         }
+    }
+
+    return (unsigned long)(crc ^ 0xFFFFFFFFu);
+}
+
+unsigned long crc32_hw(const x_str_t *s) {
+    if (!s || !s->str) return 0;
+
+    uint32_t crc = 0xFFFFFFFFu;
+    const uint8_t *p = (const uint8_t *)s->str;
+    uint64_t n = s->len;
+
+    while (n >= 4) {
+        uint32_t chunk;
+        memcpy(&chunk, p, 4);
+        crc = _mm_crc32_u32(crc, chunk);
+        p += 4;
+        n -= 4;
+    }
+    while (n--) {
+        crc = _mm_crc32_u8(crc, *p++);
     }
 
     return (unsigned long)(crc ^ 0xFFFFFFFFu);

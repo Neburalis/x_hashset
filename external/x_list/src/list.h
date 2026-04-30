@@ -57,7 +57,12 @@ const char *error(list_t *list);
 
 // verify state of list
 // return true if in valid state, false if in incorrect state
+// compile with -DX_LIST_NO_VERIFY to skip all checks (benchmarks/perf)
+#ifdef X_LIST_NO_VERIFY
+inline bool verifier(list_t *) { return true; }
+#else
 bool verifier(list_t *list);
+#endif
 
 void _generate_dot_dump(list_t *list, FILE * fp);
 const char *_generate_image(list_t *list, const char *dir_name);
