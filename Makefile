@@ -25,7 +25,7 @@ PERF_SRCS := perf_main.cpp \
              external/x_list/src/list_verifier.cpp
 
 PERF_TARGET  := hashset_perf.out
-PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
+PERF_FLAGS   := -Ofast -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
 
 .PHONY: all clean run analyze perf perf_build
 
