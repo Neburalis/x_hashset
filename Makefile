@@ -69,7 +69,7 @@ perf_build: | data assets
 
 perf: perf_build
 	perf record -g -F 999 ./$(PERF_TARGET)
-	perf report --stdio | head -60
+	perf report
 
 perf_soa_build: | data assets
 	$(CXX) $(CXXFLAGS) $(PERF_SOA_FLAGS) $(PERF_SOA_SRCS) -o $(PERF_SOA_TARGET) -lm

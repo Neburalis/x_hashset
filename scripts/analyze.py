@@ -53,11 +53,12 @@ def plot_bucket_hist(csv_path):
     avg     = total / len(counts) if counts else 0
     var     = sum((c - avg) ** 2 for c in counts) / len(counts) if counts else 0
     sigma   = math.sqrt(var)
+    norm    = sigma / math.sqrt(avg) if avg > 0 else float('inf')
 
     fig, ax = plt.subplots(figsize=(14, 6))
     ax.bar(buckets, counts, width=1.0, color="#3a6bc4", edgecolor="none")
     ax.axhline(avg, color="#cc3333", linewidth=1.2, linestyle="--",
-               label=f"mean = {avg:.1f}\nsigma = {sigma:.1f}")
+               label=f"mean = {avg:.1f}\nσ/√avg = {norm:.2f}")
     # ax.axhspan(max(avg - sigma, 0), avg + sigma,
             #    color="#cc3333", alpha=0.10)
     ax.set_xlabel("Bucket index", labelpad=8)
