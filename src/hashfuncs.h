@@ -14,6 +14,8 @@ unsigned long ror(const x_str::x_str_t *str);
 unsigned long crc32(const x_str::x_str_t *str);
 unsigned long crc32_hw(const x_str::x_str_t *str);  // hardware CRC32 (SSE4.2)
 
+uint64_t crc32_hw_raw(const char *str, size_t len);  // raw interface, no x_str_t
+
 }
 
 #endif // HASHFUNCS_H

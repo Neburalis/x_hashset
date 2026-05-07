@@ -1,18 +1,17 @@
 #pragma once
 #include "bucket_soa.h"
-#include "stringNthong.h"
+#include <stdint.h>
 
 namespace hashset_soa {
 
 struct hashset_t {
     bucket_soa::bucket_t *buckets;
     size_t                nbuckets;
-    x_str::hash_fp        hash_fn;
 };
 
-hashset_t construct(x_str::hash_fp fn, size_t nbuckets);
+hashset_t construct(size_t nbuckets);
 void      destruct(hashset_t *hs);
-bool      add(hashset_t *hs, x_str::x_str_t str);
-bool      contains(const hashset_t *hs, x_str::x_str_t str);
+bool      add(hashset_t *hs, const char *str, size_t len, uint64_t hash);
+bool      contains(const hashset_t *hs, const char *str, size_t len, uint64_t hash);
 
 } // namespace hashset_soa

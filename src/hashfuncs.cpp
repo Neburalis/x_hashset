@@ -77,25 +77,22 @@ unsigned long crc32(const x_str_t *s) {
     return (unsigned long)(crc ^ 0xFFFFFFFFu);
 }
 
-unsigned long crc32_hw(const x_str_t *s) {
-    if (!s || !s->str) return 0;
-
+uint64_t crc32_hw_raw(const char *str, size_t len) {
     uint32_t crc = 0xFFFFFFFFu;
-    const uint8_t *p = (const uint8_t *)s->str;
-    uint64_t n = s->len;
-
-    while (n >= 4) {
+    const uint8_t *p = (const uint8_t *)str;
+    while (len >= 4) {
         uint32_t chunk;
         memcpy(&chunk, p, 4);
         crc = _mm_crc32_u32(crc, chunk);
-        p += 4;
-        n -= 4;
+        p += 4; len -= 4;
     }
-    while (n--) {
-        crc = _mm_crc32_u8(crc, *p++);
-    }
+    while (len--) crc = _mm_crc32_u8(crc, *p++);
+    return (uint64_t)(crc ^ 0xFFFFFFFFu);
+}
 
-    return (unsigned long)(crc ^ 0xFFFFFFFFu);
+unsigned long crc32_hw(const x_str_t *s) {
+    if (!s || !s->str) return 0;
+    return (unsigned long)crc32_hw_raw(s->str, s->len);
 }
 
 static unsigned long djb2_impl(const char *s) {

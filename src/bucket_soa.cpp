@@ -61,7 +61,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
             for (int j = 0; j < 4; j++) {
                 if ((mask >> (j * 8)) & 0xFF) {
                     if (lens[i + j] == len &&
-                        simd_memeq(strs[i + j], str, len))
+                        simd_memeq_slot32(strs[i + j], str))
                         return true;
                 }
             }
@@ -70,7 +70,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
 #endif
     for (; i < n; i++) {
         if (hashes[i] == hash && lens[i] == len &&
-            simd_memeq(strs[i], str, len))
+            simd_memeq_slot32(strs[i], str))
             return true;
     }
     return false;

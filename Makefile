@@ -2,7 +2,8 @@ CXX      := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -msse4.2 \
             -I src \
             -I external/string_and_thong \
-            -I external/x_list/src
+            -I external/x_list/src \
+            -I external/io_utils/include
 
 TARGET := hashset.out
 
@@ -12,7 +13,9 @@ SRCS := main.cpp \
         external/string_and_thong/stringNthong.cpp \
         external/x_list/src/list.cpp \
         external/x_list/src/list_dump.cpp \
-        external/x_list/src/list_verifier.cpp
+        external/x_list/src/list_verifier.cpp \
+        external/io_utils/src/io_utils.cpp \
+        external/io_utils/src/memdump.cpp \
 
 OBJS := $(SRCS:.cpp=.o)
 
@@ -22,7 +25,9 @@ PERF_SRCS := perf_main.cpp \
              external/string_and_thong/stringNthong.cpp \
              external/x_list/src/list.cpp \
              external/x_list/src/list_dump.cpp \
-             external/x_list/src/list_verifier.cpp
+             external/x_list/src/list_verifier.cpp \
+             external/io_utils/src/io_utils.cpp \
+             external/io_utils/src/memdump.cpp \
 
 PERF_TARGET  := hashset_perf.out
 PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
@@ -31,7 +36,8 @@ PERF_SOA_SRCS   := perf_main_soa.cpp \
                    src/hashset_soa.cpp \
                    src/bucket_soa.cpp \
                    src/hashfuncs.cpp \
-                   external/string_and_thong/stringNthong.cpp
+                   external/io_utils/src/io_utils.cpp \
+                   external/io_utils/src/memdump.cpp \
 
 PERF_SOA_TARGET := hashset_perf_soa.out
 PERF_SOA_FLAGS  := -O2 -g -fno-omit-frame-pointer -mavx2
