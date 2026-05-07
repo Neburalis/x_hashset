@@ -4,6 +4,7 @@
 
 #include "hashset_soa.h"
 #include "hashfuncs.h"
+#include "simd_str.h"
 
 static const size_t BUCKETS = 997;
 static const int    REPS    = 100;
@@ -18,7 +19,7 @@ static size_t load_words(const char *path, x_str::x_str_t **out) {
 
     char buf[512];
     while (fgets(buf, sizeof(buf), f)) {
-        size_t len = strlen(buf);
+        size_t len = simd_strlen(buf);
         if (len && buf[len - 1] == '\n') buf[--len] = '\0';
         if (!len) continue;
         if (n == cap) {

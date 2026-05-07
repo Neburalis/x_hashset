@@ -1,10 +1,6 @@
 #include "bucket_soa.h"
+#include "simd_str.h"
 #include <stdlib.h>
-#include <string.h>
-
-#ifdef __AVX2__
-#include <immintrin.h>
-#endif
 
 namespace bucket_soa {
 
@@ -65,7 +61,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
             for (int j = 0; j < 4; j++) {
                 if ((mask >> (j * 8)) & 0xFF) {
                     if (lens[i + j] == len &&
-                        memcmp(strs[i + j], str, len) == 0)
+                        simd_memeq(strs[i + j], str, len))
                         return true;
                 }
             }
@@ -74,7 +70,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
 #endif
     for (; i < n; i++) {
         if (hashes[i] == hash && lens[i] == len &&
-            memcmp(strs[i], str, len) == 0)
+            simd_memeq(strs[i], str, len))
             return true;
     }
     return false;
