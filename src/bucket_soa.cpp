@@ -1,6 +1,16 @@
 #include "bucket_soa.h"
 #include "simd_str.h"
 #include <stdlib.h>
+#include <string.h>
+
+static inline bool str_eq(const char *a, const char *b, size_t len) {
+#ifdef USE_ALIGNED_STRCMP
+    (void)len;
+    return simd_memeq_slot32(a, b);
+#else
+    return memcmp(a, b, len) == 0;
+#endif
+}
 
 namespace bucket_soa {
 
@@ -61,7 +71,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
             for (int j = 0; j < 4; j++) {
                 if ((mask >> (j * 8)) & 0xFF) {
                     if (lens[i + j] == len &&
-                        simd_memeq_slot32(strs[i + j], str))
+                        str_eq(strs[i + j], str, lens[i + j]))
                         return true;
                 }
             }
@@ -70,7 +80,7 @@ bool contains(const bucket_t *b, const char *str, size_t len, uint64_t hash) {
 #endif
     for (; i < n; i++) {
         if (hashes[i] == hash && lens[i] == len &&
-            simd_memeq_slot32(strs[i], str))
+            str_eq(strs[i], str, lens[i]))
             return true;
     }
     return false;
