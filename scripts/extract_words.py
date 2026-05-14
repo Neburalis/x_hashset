@@ -1,3 +1,4 @@
+#!/usr/bin/env -S uv run --script
 import re
 
 with open("../war_and_peace.txt", "r", encoding="utf-8") as f:

@@ -28,6 +28,7 @@ static inline void aligned_store_destroy(aligned_store_t *s) {
 
 static inline char *aligned_store_intern(aligned_store_t *s,
                                          const char *str, size_t len) {
+    if (len + 1 > ALIGNED_SLOT) return NULL;
     char *slot = s->buf + s->used * ALIGNED_SLOT;
     memcpy(slot, str, len + 1);   // str + null; rest already zero
     s->used++;

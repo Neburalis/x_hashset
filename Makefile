@@ -19,30 +19,33 @@ SRCS := main.cpp \
 
 OBJS := $(SRCS:.cpp=.o)
 
-PERF_SRCS := perf_main.cpp \
+PERF_FLAGS := -Ofast -g -fno-omit-frame-pointer -mavx2
+
+BASE_SRCS := perf_main.cpp \
              src/hashset.cpp \
              src/hashfuncs.cpp \
              external/string_and_thong/stringNthong.cpp \
              external/x_list/src/list.cpp \
              external/x_list/src/list_dump.cpp \
-             external/x_list/src/list_verifier.cpp \
-             external/io_utils/src/io_utils.cpp \
-             external/io_utils/src/memdump.cpp \
+             external/x_list/src/list_verifier.cpp
 
-PERF_TARGET  := hashset_perf.out
-PERF_FLAGS   := -O2 -g -fno-omit-frame-pointer -DX_LIST_NO_VERIFY -DNDEBUG
+SOA_SRCS := perf_soa.cpp \
+            src/hashset_soa.cpp \
+            src/bucket_soa.cpp \
+            src/hashfuncs.cpp \
+            external/io_utils/src/io_utils.cpp \
+            external/io_utils/src/memdump.cpp
 
-PERF_SOA_SRCS   := perf_main_soa.cpp \
-                   src/hashset_soa.cpp \
-                   src/bucket_soa.cpp \
-                   src/hashfuncs.cpp \
-                   external/io_utils/src/io_utils.cpp \
-                   external/io_utils/src/memdump.cpp \
+ALIGNED_SRCS := perf_aligned.cpp \
+                src/hashset_soa.cpp \
+                src/bucket_soa.cpp \
+                src/hashfuncs.cpp \
+                external/io_utils/src/io_utils.cpp \
+                external/io_utils/src/memdump.cpp
 
-PERF_SOA_TARGET := hashset_perf_soa.out
-PERF_SOA_FLAGS  := -O2 -g -fno-omit-frame-pointer -mavx2
-
-.PHONY: all clean run analyze perf perf_build perf_soa_build perf_soa
+.PHONY: all clean run analyze \
+        perf_base_verify_build perf_base_build perf_soa_build perf_soa_hw_build perf_aligned_build \
+        perf_base_verify perf_base perf_soa perf_soa_hw perf_aligned
 
 all: $(TARGET)
 
@@ -56,7 +59,11 @@ data assets:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(PERF_TARGET) perf.data perf.data.old
+	rm -f $(OBJS) $(TARGET) \
+	      hashset_perf_base_verify.out hashset_perf_base.out \
+	      hashset_perf_soa.out hashset_perf_soa_hw.out \
+	      hashset_perf_aligned.out \
+	      perf.data perf.data.old
 
 run:
 	./hashset.out
@@ -64,16 +71,37 @@ run:
 analyze:
 	python3 scripts/analyze.py
 
-perf_build: | data assets
-	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) $(PERF_SRCS) -o $(PERF_TARGET) -lm
+perf_base_verify_build: | data assets
+	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) $(BASE_SRCS) -o hashset_perf_base_verify.out -lm
 
-perf: perf_build
-	perf record -g -F 999 ./$(PERF_TARGET)
-	perf report
+perf_base_build: | data assets
+	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) -DNDEBUG -DX_LIST_NO_VERIFY $(BASE_SRCS) -o hashset_perf_base.out -lm
 
 perf_soa_build: | data assets
-	$(CXX) $(CXXFLAGS) $(PERF_SOA_FLAGS) $(PERF_SOA_SRCS) -o $(PERF_SOA_TARGET) -lm
+	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) $(SOA_SRCS) -o hashset_perf_soa.out -lm
+
+perf_soa_hw_build: | data assets
+	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) -DUSE_HW_CRC32 $(SOA_SRCS) -o hashset_perf_soa_hw.out -lm
+
+perf_aligned_build: | data assets
+	$(CXX) $(CXXFLAGS) $(PERF_FLAGS) -DUSE_ALIGNED_STRCMP $(ALIGNED_SRCS) -o hashset_perf_aligned.out -lm
+
+perf_base_verify: perf_base_verify_build
+	perf record -g -F 999 -o /tmp/perf_base_verify.data ./hashset_perf_base_verify.out
+	perf report --no-children -i /tmp/perf_base_verify.data
+
+perf_base: perf_base_build
+	perf record -g -F 999 -o /tmp/perf_base.data ./hashset_perf_base.out
+	perf report --no-children -i /tmp/perf_base.data
 
 perf_soa: perf_soa_build
-	perf record -g -F 999 -o /tmp/perf_soa.data ./$(PERF_SOA_TARGET)
-	perf report -i /tmp/perf_soa.data
+	perf record -g -F 999 -o /tmp/perf_soa.data ./hashset_perf_soa.out
+	perf report --no-children -i /tmp/perf_soa.data
+
+perf_soa_hw: perf_soa_hw_build
+	perf record -g -F 999 -o /tmp/perf_soa_hw.data ./hashset_perf_soa_hw.out
+	perf report --no-children -i /tmp/perf_soa_hw.data
+
+perf_aligned: perf_aligned_build
+	perf record -g -F 999 -o /tmp/perf_aligned.data ./hashset_perf_aligned.out
+	perf report --no-children -i /tmp/perf_aligned.data
